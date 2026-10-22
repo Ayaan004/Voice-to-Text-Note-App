@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice to Text Note App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h1>VoiceNote</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" id="helpBtn" title="Keyboard Shortcuts">
+                        <i class="fas fa-keyboard"></i>
+                    </button>
+                    <button class="btn-icon" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button class="btn btn-primary btn-new-note" id="newNoteBtn">
+                    <i class="fas fa-plus"></i> New Note
+                </button>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search notes...">
+            </div>
+
+            <div class="notes-list" id="notesList">
+                <!-- Notes will be loaded here -->
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="stats">
+                    <i class="fas fa-sticky-note"></i> <span id="notesCount">0 notes</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-file-alt"></i>
+                <h2>No Note Selected</h2>
+                <p>Select a note from the sidebar or create a new one</p>
+                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="document.getElementById('newNoteBtn').click()">
+                    <i class="fas fa-plus"></i> Create First Note
+                </button>
+            </div>
+
+            <!-- Note Editor -->
+            <div class="note-editor hidden" id="noteEditor">
+                <div class="editor-header">
+                    <input type="text" class="note-title" id="noteTitle" placeholder="Note Title" maxlength="200">
+                    <div class="editor-actions">
+                        <button class="btn-icon" id="exportNoteBtn" title="Export Note">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon" id="copyNoteBtn" title="Copy to Clipboard">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon" id="saveNoteBtn" title="Save Note (Ctrl+S)">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="btn-icon" id="deleteNoteBtn" title="Delete Note">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="editor-toolbar">
+                    <div class="voice-controls">
+                        <button class="btn-voice" id="voiceBtn" title="Start Voice Recording">
+                            <i class="fas fa-microphone"></i>
+                            <span>Click to Speak</span>
+                        </button>
+                        <div class="voice-status" id="voiceStatus">
+                            <span class="status-text">Ready</span>
+                        </div>
+                    </div>
+                    <div class="language-selector">
+                        <select id="languageSelect">
+                            <option value="en-US">English (US)</option>
+                            <option value="en-GB">English (UK)</option>
+                            <option value="en-AU">English (Australia)</option>
+                            <option value="en-IN">English (India)</option>
+                            <option value="es-ES">Spanish (Spain)</option>
+                            <option value="es-MX">Spanish (Mexico)</option>
+                            <option value="fr-FR">French</option>
+                            <option value="de-DE">German</option>
+                            <option value="it-IT">Italian</option>
+                            <option value="pt-BR">Portuguese (Brazil)</option>
+                            <option value="pt-PT">Portuguese (Portugal)</option>
+                            <option value="hi-IN">Hindi</option>
+                            <option value="zh-CN">Chinese (Simplified)</option>
+                            <option value="zh-TW">Chinese (Traditional)</option>
+                            <option value="ja-JP">Japanese</option>
+                            <option value="ko-KR">Korean</option>
+                            <option value="ar-SA">Arabic</option>
+                            <option value="ru-RU">Russian</option>
+                            <option value="nl-NL">Dutch</option>
+                            <option value="tr-TR">Turkish</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="editor-content">
+                    <textarea class="note-content" id="noteContent" placeholder="Start typing or use voice input..."></textarea>
+                </div>
+
+            <div class="editor-footer">
+                <div class="tags-container">
+                    <i class="fas fa-tags"></i>
+                    <input type="text" class="tags-input" id="tagsInput" placeholder="Add tags (comma separated)">
+                </div>
+                <div class="note-info">
+                    <span id="wordCount"><i class="fas fa-file-word"></i> 0 words</span>
+                    <span id="charCount"><i class="fas fa-keyboard"></i> 0 characters</span>
+                    <span id="lastSaved">Not saved</span>
+                </div>
+            </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal hidden" id="helpModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h2>
+                <button class="btn-icon" id="closeHelpModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcut-list">
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>N</kbd>
+                        <span>Create new note</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>S</kbd>
+                        <span>Save current note</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>F</kbd>
+                        <span>Focus search</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Esc</kbd>
+                        <span>Stop voice recording</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem;">💡 Tips</h3>
+                    <ul style="list-style: none; padding: 0; color: var(--text-secondary); line-height: 1.8;">
+                        <li>• Notes auto-save 2 seconds after you stop typing</li>
+                        <li>• Use tags to organize your notes better</li>
+                        <li>• Click the microphone to use voice input</li>
+                        <li>• Search works across titles and content</li>
+                        <li>• Toggle dark mode for comfortable night usage</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
